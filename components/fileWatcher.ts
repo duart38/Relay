@@ -1,10 +1,23 @@
 import { successLog } from "https://deno.land/x/colorlog/mod.ts";
-export default class Watcher {
-  changed: boolean = false;
+import Observe from "https://raw.githubusercontent.com/duart38/Observe/master/Observe.ts";
+
+export class Watcher {
+  hash: Observe<string>;
 
   constructor(dir: string) {
     successLog(`[+] starting file watcher in directory ${dir}`);
+    this.hash = new Observe(this.newHash());
     this.init(dir);
+  }
+
+  /**
+   * Gets a new random hash
+   */
+  private newHash(): string {
+    return crypto.getRandomValues(new Uint32Array(2)).toString().replace(
+      ",",
+      "",
+    );
   }
 
   /**
@@ -14,23 +27,14 @@ export default class Watcher {
   private async init(x: string) {
     const watcher = Deno.watchFs(x);
     for await (const event of watcher) {
-      this.changed = true;
+      this.hash.setValue(this.newHash());
       successLog(
         `[+] models updated. The next request will receive the changes (${event.kind})`,
       );
     }
   }
-  /**
-   * Check if the watcher witnessed any changes
-   */
-  public updated(): boolean {
-    return this.changed;
-  }
-  /**
-   * Acknowledge the change, causing the changed value to be false to accept other changes
-   * note: don't ack if you want to trigger an update each request (updated() always returns true)
-   */
-  public ack() {
-    this.changed = false;
+
+  public getObservable(): Observe<string> {
+    return this.hash;
   }
 }
