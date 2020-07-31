@@ -1,4 +1,5 @@
 export default {
-  port: 8000,
-  relayURL: "localhost:8080",
+  port: 8000, // the port of the middleware (this).
+  relayURL: "http://190.4.176.147:52199/API.svc/", // serves as the base url
+  models_folder: "./models"
 };
