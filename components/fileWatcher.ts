@@ -1,11 +1,12 @@
-import { successLog } from "https://deno.land/x/colorlog/mod.ts";
 import Observe from "https://raw.githubusercontent.com/duart38/Observe/master/Observe.ts";
+import { print } from "../actions/logging.ts";
+import { Verbosity } from "../enums/verbosity.ts";
 
 export class Watcher {
   hash: Observe<string>;
 
   constructor(dir: string) {
-    successLog(`[+] starting file watcher in directory ${dir}`);
+    print(`[+] starting file watcher in directory ${dir}`, Verbosity.LOW);
     this.hash = new Observe(this.newHash());
     this.init(dir);
   }
@@ -28,9 +29,7 @@ export class Watcher {
     const watcher = Deno.watchFs(x);
     for await (const event of watcher) {
       this.hash.setValue(this.newHash());
-      successLog(
-        `[+] models updated. The next request will receive the changes (${event.kind})`,
-      );
+      print(`[+] models updated. The next request will receive the changes (${event.kind})`, Verbosity.MEDIUM);
     }
   }
 

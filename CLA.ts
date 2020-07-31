@@ -1,5 +1,6 @@
 import config from "./config.js";
 import { parse } from "https://deno.land/std/flags/mod.ts";
+import { Verbosity } from "./enums/verbosity.ts";
 const args: any = parse(Deno.args);
 
 /**
@@ -12,6 +13,13 @@ export function modelsFolder(): string {
       : args["m"];
   }
   return config.models_folder;
+}
+
+export function verbosity(): Verbosity {
+ if ("v" in args) {
+   return Verbosity[args["v"] as keyof typeof Verbosity];
+ }
+ return config.verbosity;
 }
 
 /**
