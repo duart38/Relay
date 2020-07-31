@@ -5,7 +5,7 @@
 export function loadConfiguration() {
   const dummy_http = {
     getAllProducts: {
-      route: "/call/to/ISS/server", // this is like a relay
+      route: "/WSProductService.svc/GetProductSearchListing/", // this is like a relay
       cors: { // we want to append these when we relay the signal back to the caller...
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "*",
