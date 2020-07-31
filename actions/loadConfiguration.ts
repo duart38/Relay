@@ -1,24 +1,22 @@
-/**
- * Calls the database and loads expected behavior for our components
- * E.g: server will instruct websocket what to do when 'test' message is emitted from the client
- */
-export function loadConfiguration() {
-  const dummy_http = {
-    getAllProducts: {
-      route: "/WSProductService.svc/GetProductSearchListing/", // this is like a relay
-      cors: { // we want to append these when we relay the signal back to the caller...
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
-      },
-      // TODO: add a way to specify what is able to be forwarded eg: 'test' from body. Everything else should be discarded
-      // any other config here.. (future proofing)
-    },
-  };
-  const dummy_wss = {
-    add_to_sc: {
-      route: "/call/to/ISS/server",
-      // any other config here.. (future proofing)
-    },
-  };
-  return {};
+import { modelsFolder } from "../CLA.ts";
+import { getUrlParams } from "./decoding.ts";
+import { modelWatcher } from "../server.ts";
+import { Connection } from "../enums/connectionTypes.ts";
+import { HTTPModelMethod, SOCKETModelMethod } from "../interfaces/model.ts";
+
+export async function loadConfiguration(
+  model: string,
+  method: string,
+  req: any,
+  connectionType: Connection,
+): Promise<HTTPModelMethod | SOCKETModelMethod> {
+  let m = await import(
+    `../${modelsFolder()}/${model}?${modelWatcher.getObservable().getValue()}.ts`
+  );
+  if (typeof m[Object.keys(m)[0]] == "function") {
+    var temp = await m[Object.keys(m)[0]](req.headers, getUrlParams(req.url)); // headers and url params are available in models
+    return temp[connectionType][method];
+  } else {
+    return m[Object.keys(m)[0]];
+  }
 }
