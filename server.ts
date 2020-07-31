@@ -1,11 +1,9 @@
-import { serve, Server } from "https://deno.land/std/http/server.ts";
-import { constructHeaders } from "./actions/respond.ts";
-import config from "./config.js";
+import { modelsFolder } from "./CLA.ts";
+import httpServer from "./components/httpServer.ts";
+import SocketBridge from "./components/websocket.ts";
+import { Watcher } from "./components/fileWatcher.ts";
 
-const port: number = config.port;
-const server = serve({ port });
-console.log(`[+] Server running on port: ${port}`);
+export const modelWatcher = new Watcher(modelsFolder()); // watching the base models folder
 
-for await (const req of server) {
-  req.respond({ body: "hello world", headers: constructHeaders(req) });
-}
+new httpServer();
+new SocketBridge(6969);
