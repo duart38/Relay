@@ -47,7 +47,7 @@ export default class httpServer {
       this.forward(config).then((relayValue)=>{
         console.log("Relay responded with the below data")
         console.log(relayValue)
-        req.respond({ body: "hello world (TODO)", headers: constructHeaders(req, config) });
+        req.respond({ body: JSON.stringify(relayValue.data) || "", headers: constructHeaders(req, config) });
       }).catch((err)=>{
         console.error(err)
       })
