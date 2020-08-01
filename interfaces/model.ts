@@ -4,15 +4,12 @@ import { HTTP } from "../enums/httpTypes.ts";
  * The entire model structure
  */
 export interface Model {
-  HTTP: {
-    // http endpoints available for the sub route 'Test'  e.g: www.medit_mw.com/Test/getAllProducts
-    getAllProducts: HTTPModelMethod;
-  };
+  HTTP: HTTPModelObject;
   SOCKET?: SOCKETModelMethod;
 }
 
 /**
- * Represents a single HTTP method in our model
+ * Represents a single HTTP method in our model. This contains the instructions to be used by this application
  */
 export interface HTTPModelMethod {
   route: string;
@@ -31,4 +28,11 @@ export interface SOCKETModelMethod {
   sync_cart: {
     route: string; // this is like a relay
   };
+}
+
+/**
+ * an object of HTTPModels
+ */
+interface HTTPModelObject {
+  [key: string]: HTTPModelMethod;
 }
