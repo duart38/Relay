@@ -16,9 +16,9 @@ export function getUrlParams(url: string): object {
 export async function decodeBody(
   config: HTTPModelMethod,
   body: Deno.Reader
-): Promise<Uint8Array | object> {
-  let decoded: Uint8Array | object = config.decode
-    ? JSON.parse(new TextDecoder().decode(await Deno.readAll(body)))
+): Promise<Uint8Array | string> {
+  let decoded: Uint8Array | string = config.decode
+    ? new TextDecoder().decode(await Deno.readAll(body))
     : await Deno.readAll(body);
   return decoded;
 }

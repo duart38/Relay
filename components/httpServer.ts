@@ -26,7 +26,7 @@ export default class httpServer {
   async forward(
     configuration: HTTPModelMethod,
     headers: any,
-    body: Uint8Array | object
+    body: Uint8Array | string
   ): Promise<any> {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
