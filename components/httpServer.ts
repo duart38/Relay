@@ -36,11 +36,17 @@ export default class httpServer {
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || ' - none', Verbosity.HIGH);
 
+    console.log(typeof body);
+
     switch (configuration.type) {
       case HTTP.GET:
         return await axiod.get(configuration.route, { headers });
       case HTTP.POST:
-        return await axiod.post(configuration.route, body, { headers });
+        return await axiod.post(
+          configuration.route,
+          typeof body === 'string' ? JSON.parse(body) : body,
+          { headers }
+        );
       default:
         return await axiod.get(configuration.route);
     }
@@ -67,7 +73,7 @@ export default class httpServer {
             } ms`,
             Verbosity.MEDIUM
           );
-        req.respond({
+          req.respond({
             body: JSON.stringify(relayValue.data) || '',
             headers: constructHeaders(req, config),
           });
