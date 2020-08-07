@@ -23,19 +23,22 @@ export default class httpServer {
    */
   async forward(
     configuration: HTTPModelMethod,
-    headers?: any,
-    body?: any,
+    headers: any,
+    body: Deno.Reader,
   ): Promise<any> {
+    let decoded: Uint8Array | string = configuration.decode ? new TextDecoder().decode(await Deno.readAll(body)) : await Deno.readAll(body);
+
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
     print(configuration, Verbosity.HIGH);
     print(`| Body:`, Verbosity.HIGH);
-    print(body || " - none", Verbosity.HIGH);
+    print(decoded || " - none", Verbosity.HIGH);
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || " - none", Verbosity.HIGH);
+
     switch (configuration.type) {
       case HTTP.GET:  return await axiod.get(configuration.route, { headers });
-      case HTTP.POST: return await axiod.post(configuration.route, body, { headers });
+      case HTTP.POST: return await axiod.post(configuration.route, decoded, { headers });
       default: return await axiod.get(configuration.route);
     }
   }

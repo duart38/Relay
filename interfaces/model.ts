@@ -19,6 +19,7 @@ export interface HTTPModelMethod {
     "Access-Control-Allow-Headers": string;
   };
   type: HTTP;
+  decode?: boolean;
 }
 
 /**
