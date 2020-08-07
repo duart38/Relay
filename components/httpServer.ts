@@ -29,6 +29,10 @@ export default class httpServer {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
     print(configuration, Verbosity.HIGH);
+    print(`| Body:`, Verbosity.HIGH);
+    print(body || " - none", Verbosity.HIGH);
+    print(`| Headers:`, Verbosity.HIGH);
+    print(headers || " - none", Verbosity.HIGH);
     switch (configuration.type) {
       case HTTP.GET:  return await axiod.get(configuration.route, { headers });
       case HTTP.POST: return await axiod.post(configuration.route, body, { headers });
@@ -50,7 +54,7 @@ export default class httpServer {
         req,
         Connection.HTTP,
       );
-      this.forward(config).then((relayValue)=>{
+      this.forward(config, req.headers, req.body).then((relayValue)=>{
         print(`[+] Relay server responded with the below.. forwarding`, Verbosity.HIGH);
         print(relayValue, Verbosity.HIGH);
         performance.mark(`end_http_${req.url}`);
