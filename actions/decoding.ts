@@ -1,3 +1,5 @@
+import { HTTPModelMethod } from "../interfaces/model.ts";
+
 export function getUrlParams(url: string): object {
   var vars: any = {};
   var hashes = url.split("?")[1];
@@ -9,4 +11,9 @@ export function getUrlParams(url: string): object {
     vars[params[0]] = params[1];
   }
   return vars || {};
+}
+
+export async function decodeBody(config: HTTPModelMethod, body: Deno.Reader): Promise<Uint8Array | string>{
+  let decoded: Uint8Array | string = config.decode ? new TextDecoder().decode(await Deno.readAll(body)) : await Deno.readAll(body);
+  return decoded;
 }

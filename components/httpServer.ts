@@ -7,8 +7,10 @@ import { HTTPModelMethod } from "../interfaces/model.ts";
 
 import axiod from "https://deno.land/x/axiod/mod.ts";
 import { HTTP } from "../enums/httpTypes.ts";
-import { print } from "../actions/logging.ts";
+import { print, ObjectSize } from "../actions/logging.ts";
 import { Verbosity } from "../enums/verbosity.ts";
+import { verbosity } from "../CLA.ts";
+import { decodeBody } from "../actions/decoding.ts";
 
 export default class httpServer {
   constructor() {
@@ -24,21 +26,21 @@ export default class httpServer {
   async forward(
     configuration: HTTPModelMethod,
     headers: any,
-    body: Deno.Reader,
+    body: Uint8Array | string,
   ): Promise<any> {
-    let decoded: Uint8Array | string = configuration.decode ? new TextDecoder().decode(await Deno.readAll(body)) : await Deno.readAll(body);
+
 
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
     print(configuration, Verbosity.HIGH);
     print(`| Body:`, Verbosity.HIGH);
-    print(decoded || " - none", Verbosity.HIGH);
+    print(body || " - none", Verbosity.HIGH);
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || " - none", Verbosity.HIGH);
 
     switch (configuration.type) {
       case HTTP.GET:  return await axiod.get(configuration.route, { headers });
-      case HTTP.POST: return await axiod.post(configuration.route, decoded, { headers });
+      case HTTP.POST: return await axiod.post(configuration.route, body, { headers });
       default: return await axiod.get(configuration.route);
     }
   }
@@ -57,11 +59,19 @@ export default class httpServer {
         req,
         Connection.HTTP,
       );
-      this.forward(config, req.headers, req.body).then((relayValue)=>{
+      let decoded = await decodeBody(config, req.body);
+      this.forward(config, req.headers, decoded).then((relayValue)=>{
         print(`[+] Relay server responded with the below.. forwarding`, Verbosity.HIGH);
         print(relayValue, Verbosity.HIGH);
         performance.mark(`end_http_${req.url}`);
         print(`| Duration: ${performance.measure(req.url, `start_http_${req.url}`, `end_http_${req.url}`).duration} ms`, Verbosity.MEDIUM)
+        if(verbosity() >= Verbosity.MEDIUM){ // the size estimation in itself has some performance overhead. by only executing when the verbosity is at a certain level we compensate for this
+          //let t = Array.isArray(decoded) ? new TextDecoder().decode(<Uint8Array>decoded) : decoded;
+          print(`| received (client) data size: ${ObjectSize(decoded)}`, Verbosity.MEDIUM)
+          print(`| response (relay) data size: ${ObjectSize(relayValue)}`, Verbosity.MEDIUM)
+        }
+
+
         req.respond({ body: JSON.stringify(relayValue.data) || "", headers: constructHeaders(req, config) });
       }).catch((err)=>{
         performance.mark(req.url);
