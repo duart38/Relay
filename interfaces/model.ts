@@ -1,4 +1,4 @@
-import { HTTP } from "../enums/httpTypes.ts";
+import { HTTP } from '../enums/httpTypes.ts';
 
 /**
  * The entire model structure
@@ -15,11 +15,11 @@ export interface HTTPModelMethod {
   route: string;
   cors: {
     // we want to append these when we relay the signal back to the caller...
-    "Access-Control-Allow-Origin": string;
-    "Access-Control-Allow-Headers": string;
+    'Access-Control-Allow-Origin': string;
+    'Access-Control-Allow-Headers': string;
   };
   type: HTTP;
-  decode?: boolean;
+  decode: boolean;
 }
 
 /**

@@ -36,7 +36,7 @@ export default class httpServer {
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || ' - none', Verbosity.HIGH);
 
-    console.log(typeof body);
+    // console.log(typeof body);
 
     switch (configuration.type) {
       case HTTP.GET:
@@ -61,6 +61,15 @@ export default class httpServer {
       const config = <HTTPModelMethod>(
         await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
       );
+
+      if (!config)
+        return req.respond({
+          body: JSON.stringify({ ERROR: 'error' }),
+        });
+
+      if (req.method !== config.type)
+        return req.respond({ body: JSON.stringify({ ERROR: 'error' }) });
+
       let decoded = await decodeBody(config, req.body);
       this.forward(config, req.headers, decoded)
         .then((relayValue) => {
@@ -73,9 +82,11 @@ export default class httpServer {
             } ms`,
             Verbosity.MEDIUM
           );
+          console.log(req.headers);
+
           req.respond({
-            body: JSON.stringify(relayValue.data) || '',
-            headers: constructHeaders(req, config),
+            body: JSON.stringify(relayValue.data) || undefined,
+            headers: req.headers, //constructHeaders(req, config),
           });
         })
         .catch((err) => {
