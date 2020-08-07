@@ -67,14 +67,7 @@ export default class httpServer {
             } ms`,
             Verbosity.MEDIUM
           );
-          if (verbosity() >= Verbosity.MEDIUM) {
-            // the size estimation in itself has some performance overhead. by only executing when the verbosity is at a certain level we compensate for this
-            //let t = Array.isArray(decoded) ? new TextDecoder().decode(<Uint8Array>decoded) : decoded;
-            print(`| received (client) data size: ${ObjectSize(decoded)}`, Verbosity.MEDIUM);
-            print(`| response (relay) data size: ${ObjectSize(relayValue)}`, Verbosity.MEDIUM);
-          }
-
-          req.respond({
+        req.respond({
             body: JSON.stringify(relayValue.data) || '',
             headers: constructHeaders(req, config),
           });

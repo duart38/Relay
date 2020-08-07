@@ -8,7 +8,7 @@ print(`[+] Verbosity level: ${selectedVerbosity}`, Verbosity.LOW)
  * @param msg The message to be printed
  * @param level The verbosity level this msg is allowed at
  */
-export async function print(msg: any, level: Verbosity){
+export function print(msg: any, level: Verbosity){
     if(selectedVerbosity >= level){
         console.log(msg);
     }
