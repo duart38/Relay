@@ -83,7 +83,7 @@ export default class httpServer {
             } ms`,
             Verbosity.MEDIUM
           );
-          console.log(req.headers);
+          // console.log(req.headers);
 
           req.respond({
             body: JSON.stringify(relayValue.data) || undefined,
