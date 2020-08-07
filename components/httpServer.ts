@@ -11,6 +11,7 @@ import { print, ObjectSize } from '../actions/logging.ts';
 import { Verbosity } from '../enums/verbosity.ts';
 import { verbosity } from '../CLA.ts';
 import { decodeBody } from '../actions/decoding.ts';
+import { IAxiodResponse } from 'https://deno.land/x/axiod@0.20.0-0/interfaces.ts';
 
 export default class httpServer {
   constructor() {
@@ -27,7 +28,7 @@ export default class httpServer {
     configuration: HTTPModelMethod,
     headers: any,
     body: Uint8Array | string
-  ): Promise<any> {
+  ): Promise<IAxiodResponse> {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
     print(configuration, Verbosity.HIGH);
