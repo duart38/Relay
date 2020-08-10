@@ -6,12 +6,12 @@ import {
   ServerRequest,
   listenAndServeTLS,
 } from "https://deno.land/std/http/server.ts";
-import { constructHeaders, defaultHeaders } from "../actions/respond.ts";
+import { constructHeaders, defaultHeaders, headersToObject } from "../actions/respond.ts";
 import { loadConfiguration } from "../actions/loadConfiguration.ts";
 import { Connection } from "../enums/connectionTypes.ts";
 import { HTTPModelMethod } from "../interfaces/model.ts";
 
-import axiod from "https://deno.land/x/axiod/mod.ts";
+import axiod from "https://deno.land/x/axiod@0.20.0-0/mod.ts";
 import { HTTP } from "../enums/httpTypes.ts";
 import { print, ObjectSize } from "../actions/logging.ts";
 import { Verbosity } from "../enums/verbosity.ts";
@@ -45,7 +45,7 @@ export default class httpServer {
    */
   private static async forward(
     configuration: HTTPModelMethod,
-    headers: any,
+    headers: Headers,
     body: Uint8Array | string
   ): Promise<IAxiodResponse> {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
@@ -55,15 +55,15 @@ export default class httpServer {
     print(body || " - none", Verbosity.HIGH);
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || " - none", Verbosity.HIGH);
-
+    
     switch (configuration.type) {
       case HTTP.GET:
-        return await axiod.get(configuration.route, { headers });
+        return await axiod.get(configuration.route, { headers: headersToObject(headers) });
       case HTTP.POST:
         return await axiod.post(
           configuration.route,
           typeof body === "string" ? JSON.parse(body) : body,
-          { headers }
+          { headers: headersToObject(headers) }
         );
       default:
         return await axiod.get(configuration.route);
@@ -100,7 +100,7 @@ export default class httpServer {
     }
 
     let decoded = await decodeBody(config, req.body);
-    httpServer.forward(config, req.headers, decoded)
+    httpServer.forward(config, constructHeaders(req, config), decoded)
       .then((relayValue) => {
         print(
           `[+] Relay server responded with the below.. forwarding`,
