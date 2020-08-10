@@ -84,6 +84,10 @@ export default class httpServer {
             Verbosity.MEDIUM
           );
           // console.log(req.headers);
+          if(verbosity() >= Verbosity.MEDIUM){
+            console.log(`Incoming payload size: ${ObjectSize(req.body) + ObjectSize(req.headers)} bytes`);
+            console.log(`Outgoing payload size: ${ObjectSize(relayValue.data) + ObjectSize(relayValue.headers)} bytes`);
+          }
 
           req.respond({
             body: JSON.stringify(relayValue.data) || undefined,

@@ -14,6 +14,10 @@ export function print(msg: any, level: Verbosity){
     }
 }
 
+/**
+ * Returns Object sized in bytes.
+ * @param object to be measured
+ */
 export function ObjectSize( object: any ) {
 
     var objectList: any = [];
