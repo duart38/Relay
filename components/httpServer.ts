@@ -7,7 +7,6 @@ import {
   listenAndServeTLS,
 } from "https://deno.land/std/http/server.ts";
 import { constructHeaders, defaultHeaders } from "../actions/respond.ts";
-import config from "../config.js";
 import { loadConfiguration } from "../actions/loadConfiguration.ts";
 import { Connection } from "../enums/connectionTypes.ts";
 import { HTTPModelMethod } from "../interfaces/model.ts";
@@ -22,6 +21,10 @@ import { IAxiodResponse } from "https://deno.land/x/axiod@0.20.0-0/interfaces.ts
 
 export default class httpServer {
   constructor() {
+    this.init();
+  }
+
+  private async init(){
     const port: number = portnum();
     //serveTLS
     const hasTLS = TLS() ? true : false;
@@ -40,7 +43,7 @@ export default class httpServer {
   /**
    * Forwards HTTP requests based on config..
    */
-  async forward(
+  private static async forward(
     configuration: HTTPModelMethod,
     headers: any,
     body: Uint8Array | string
@@ -82,20 +85,22 @@ export default class httpServer {
       await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
     );
 
-    if (!config)
+    if (!config){
       return req.respond({
         body: "404",
         headers: defaultHeaders(req),
       });
+    }
 
-    if (req.method !== config.type)
+    if (req.method !== config.type){
       return req.respond({
         body: JSON.stringify({ ERROR: "error" }),
         headers: constructHeaders(req, config),
       });
+    }
 
     let decoded = await decodeBody(config, req.body);
-    this.forward(config, req.headers, decoded)
+    httpServer.forward(config, req.headers, decoded)
       .then((relayValue) => {
         print(
           `[+] Relay server responded with the below.. forwarding`,
