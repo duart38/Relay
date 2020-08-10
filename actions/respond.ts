@@ -15,6 +15,6 @@ export function defaultHeaders(req: any) {
   headers.delete('Content-Length');
   headers.append('Access-Control-Allow-Origin', '*');
   headers.append('Access-Control-Allow-Headers', '*');
-  headers.append('Allow', '*');
+  headers.append('Allow', 'OPTIONS, GET, HEAD, POST, PUT, DELETE');
   return headers;
 }
