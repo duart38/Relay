@@ -91,7 +91,7 @@ export default class httpServer {
 
           req.respond({
             body: JSON.stringify(relayValue.data) || undefined,
-            headers: req.headers, //constructHeaders(req, config),
+            headers: constructHeaders(req, config),
           });
         })
         .catch((err) => {
