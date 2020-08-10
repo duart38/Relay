@@ -9,13 +9,13 @@ import axiod from 'https://deno.land/x/axiod/mod.ts';
 import { HTTP } from '../enums/httpTypes.ts';
 import { print, ObjectSize } from '../actions/logging.ts';
 import { Verbosity } from '../enums/verbosity.ts';
-import { verbosity } from '../CLA.ts';
+import { verbosity, portnum } from '../CLA.ts';
 import { decodeBody } from '../actions/decoding.ts';
 import { IAxiodResponse } from 'https://deno.land/x/axiod@0.20.0-0/interfaces.ts';
 
 export default class httpServer {
   constructor() {
-    const port: number = config.port;
+    const port: number = portnum();
     const server = serve({ port });
     print(`[+] Server running on port: ${port}`, Verbosity.LOW);
     this.init(server);

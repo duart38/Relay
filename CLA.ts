@@ -15,11 +15,24 @@ export function modelsFolder(): string {
   return config.models_folder;
 }
 
+/**
+ * Gets the verbosity passed in the command line or defaults to the value specified in the config
+ */
 export function verbosity(): Verbosity {
  if ("v" in args) {
    return Verbosity[args["v"] as keyof typeof Verbosity];
  }
  return config.verbosity;
+}
+
+/**
+ * Gets the port number passed in the command line or defaults to the value specified in the config
+ */
+export function portnum(): number {
+  if ("p" in args) {
+    return Number.parseInt(args["p"])
+  }
+  return config.port;
 }
 
 /**
