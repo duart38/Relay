@@ -1,4 +1,4 @@
-import { serve, Server } from 'https://deno.land/std/http/server.ts';
+import { serve, Server, serveTLS } from 'https://deno.land/std/http/server.ts';
 import { constructHeaders, defaultHeaders } from '../actions/respond.ts';
 import config from '../config.js';
 import { loadConfiguration } from '../actions/loadConfiguration.ts';
@@ -9,15 +9,20 @@ import axiod from 'https://deno.land/x/axiod/mod.ts';
 import { HTTP } from '../enums/httpTypes.ts';
 import { print, ObjectSize } from '../actions/logging.ts';
 import { Verbosity } from '../enums/verbosity.ts';
-import { verbosity, portnum } from '../CLA.ts';
+import { verbosity, portnum, TLS } from '../CLA.ts';
 import { decodeBody } from '../actions/decoding.ts';
 import { IAxiodResponse } from 'https://deno.land/x/axiod@0.20.0-0/interfaces.ts';
 
 export default class httpServer {
   constructor() {
     const port: number = portnum();
-    const server = serve({ port });
-    print(`[+] Server running on port: ${port}`, Verbosity.LOW);
+    //serveTLS
+    const hasTLS = TLS() ? true : false;
+    const server = hasTLS
+      ? serveTLS({ port, certFile: TLS()?.cert || '', keyFile: TLS()?.key || '' })
+      : serve({ port });
+    console.log({ port, certFile: TLS()?.cert || '', keyFile: TLS()?.key || '' });
+    print(`[+] ${hasTLS ? 'TLS' : 'UNSC'} Server running on port: ${port}`, Verbosity.LOW);
     this.init(server);
   }
 
@@ -36,8 +41,6 @@ export default class httpServer {
     print(body || ' - none', Verbosity.HIGH);
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || ' - none', Verbosity.HIGH);
-
-    // console.log(typeof body);
 
     switch (configuration.type) {
       case HTTP.GET:

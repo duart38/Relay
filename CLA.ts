@@ -35,6 +35,13 @@ export function portnum(): number {
   return config.port;
 }
 
+export function TLS(): {cert: string, key: string}|null{
+  if("c" in args && "k" in args){ // assume valid TLS configuration
+    return {cert: args["c"], key: args["k"]}
+  }
+  return null;
+}
+
 /**
  * Name says it all..
  * Credits to : https://gist.github.com/efenacigiray/9367920
