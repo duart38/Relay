@@ -12,7 +12,9 @@ export function constructHeaders(req: any, HTTPModelMethod: HTTPModelMethod): He
 
 export function defaultHeaders(req: any) {
   let headers = <Headers>req.headers;
+  headers.delete('Content-Length');
   headers.append('Access-Control-Allow-Origin', '*');
   headers.append('Access-Control-Allow-Headers', '*');
+  headers.append('Allow', '*');
   return headers;
 }

@@ -60,6 +60,9 @@ export default class httpServer {
     for await (const req of server) {
       performance.mark(`start_http_${req.url}`);
       print(`[+] ${req.method} - ${req.url}`, Verbosity.LOW);
+      if(req.method === "OPTIONS"){
+        req.respond({headers: defaultHeaders(req)})
+      }
       const urlMethod = req.url.split('/')[req.url.split('/').length - 1].split('?')[0]; // last piece of url (test/some/stuff) -> (stuff)
       const urlModel = req.url.split('/')[req.url.split('/').length - 2] + '.ts';
 
