@@ -1,5 +1,5 @@
 import { serve, Server } from 'https://deno.land/std/http/server.ts';
-import { constructHeaders } from '../actions/respond.ts';
+import { constructHeaders, defaultHeaders } from '../actions/respond.ts';
 import config from '../config.js';
 import { loadConfiguration } from '../actions/loadConfiguration.ts';
 import { Connection } from '../enums/connectionTypes.ts';
@@ -59,17 +59,22 @@ export default class httpServer {
       print(`[+] ${req.method} - ${req.url}`, Verbosity.LOW);
       const urlMethod = req.url.split('/')[req.url.split('/').length - 1].split('?')[0]; // last piece of url (test/some/stuff) -> (stuff)
       const urlModel = req.url.split('/')[req.url.split('/').length - 2] + '.ts';
+
       const config = <HTTPModelMethod>(
         await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
       );
 
       if (!config)
         return req.respond({
-          body: JSON.stringify({ ERROR: 'error' }),
+          body: '404',
+          headers: defaultHeaders(req),
         });
 
       if (req.method !== config.type)
-        return req.respond({ body: JSON.stringify({ ERROR: 'error' }) });
+        return req.respond({
+          body: JSON.stringify({ ERROR: 'error' }),
+          headers: constructHeaders(req, config),
+        });
 
       let decoded = await decodeBody(config, req.body);
       this.forward(config, req.headers, decoded)
@@ -84,9 +89,15 @@ export default class httpServer {
             Verbosity.MEDIUM
           );
           // console.log(req.headers);
-          if(verbosity() >= Verbosity.MEDIUM){
-            console.log(`Incoming payload size: ${ObjectSize(req.body) + ObjectSize(req.headers)} bytes`);
-            console.log(`Outgoing payload size: ${ObjectSize(relayValue.data) + ObjectSize(relayValue.headers)} bytes`);
+          if (verbosity() >= Verbosity.MEDIUM) {
+            console.log(
+              `Incoming payload size: ${ObjectSize(req.body) + ObjectSize(req.headers)} bytes`
+            );
+            console.log(
+              `Outgoing payload size: ${
+                ObjectSize(relayValue.data) + ObjectSize(relayValue.headers)
+              } bytes`
+            );
           }
 
           req.respond({
