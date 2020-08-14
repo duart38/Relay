@@ -20,6 +20,7 @@ export interface HTTPModelMethod {
   };
   type: HTTP;
   decode: boolean;
+  requiredHeaders?: Array<string>
 }
 
 /**
