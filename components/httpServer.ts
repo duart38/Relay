@@ -38,7 +38,7 @@ export default class httpServer {
       )
       : listenAndServe({ port }, this.handleRequest);
     print(
-      `[+] ${hasTLS ? "TLS" : "UNSC"} Server running on port: ${port}`,
+      `[+] ${hasTLS ? "TLS" : "UNSECURED"} Server running on port: ${port}`,
       Verbosity.LOW,
     );
   }
