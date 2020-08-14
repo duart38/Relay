@@ -3,7 +3,12 @@ import {
   ServerRequest,
   listenAndServeTLS,
 } from "https://deno.land/std/http/server.ts";
-import { constructHeaders, defaultHeaders, headersToObject, respondError } from "../actions/respond.ts";
+import {
+  constructHeaders,
+  defaultHeaders,
+  headersToObject,
+  respondError,
+} from "../actions/respond.ts";
 import { loadConfiguration } from "../actions/loadConfiguration.ts";
 import { Connection } from "../enums/connectionTypes.ts";
 import { HTTPModelMethod } from "../interfaces/model.ts";
@@ -22,19 +27,19 @@ export default class httpServer {
     this.init();
   }
 
-  private async init(){
+  private async init() {
     const port: number = portnum();
     //serveTLS
     const hasTLS = TLS() ? true : false;
     const server = hasTLS
       ? listenAndServeTLS(
-          { port, certFile: TLS()?.cert || "", keyFile: TLS()?.key || "" },
-          this.handleRequest
-        )
+        { port, certFile: TLS()?.cert || "", keyFile: TLS()?.key || "" },
+        this.handleRequest,
+      )
       : listenAndServe({ port }, this.handleRequest);
     print(
       `[+] ${hasTLS ? "TLS" : "UNSC"} Server running on port: ${port}`,
-      Verbosity.LOW
+      Verbosity.LOW,
     );
   }
 
@@ -44,7 +49,7 @@ export default class httpServer {
   private static async forward(
     configuration: HTTPModelMethod,
     headers: Headers,
-    body: Uint8Array | string
+    body: Uint8Array | string,
   ): Promise<IAxiodResponse> {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
@@ -53,15 +58,18 @@ export default class httpServer {
     print(body || " - none", Verbosity.HIGH);
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || " - none", Verbosity.HIGH);
-    
+
     switch (configuration.type) {
       case HTTP.GET:
-        return await axiod.get(configuration.route, { headers: headersToObject(headers) });
+        return await axiod.get(
+          configuration.route,
+          { headers: headersToObject(headers) },
+        );
       case HTTP.POST:
         return await axiod.post(
           configuration.route,
           typeof body === "string" ? JSON.parse(body) : body,
-          { headers: headersToObject(headers) }
+          { headers: headersToObject(headers) },
         );
       default:
         return await axiod.get(configuration.route);
@@ -75,36 +83,42 @@ export default class httpServer {
       req.respond({ headers: defaultHeaders(req) });
     }
     const urlMethod = req.url
-      .split("/")
-      [req.url.split("/").length - 1].split("?")[0]; // last piece of url (test/some/stuff) -> (stuff)
+      .split("/")[req.url.split("/").length - 1].split("?")[0]; // last piece of url (test/some/stuff) -> (stuff)
     const urlModel = req.url.split("/")[req.url.split("/").length - 2] + ".ts";
 
-    const config = <HTTPModelMethod>(
+    const config = <HTTPModelMethod> (
       await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
     );
 
-    if (!config){ // config does not exists
+    if (!config) { // config does not exists
       return req.respond({
         body: "404",
         headers: defaultHeaders(req),
       });
     }
 
-    if (req.method !== config.type){ // method in config does not match the sent request
+    if (req.method !== config.type) { // method in config does not match the sent request
       return req.respond({
         body: JSON.stringify({ ERROR: "error" }),
         headers: constructHeaders(req, config),
       });
     }
 
-    if(checkRequiredHeaders(config, req.headers) === false) return req.respond({body: JSON.stringify({ ERROR: "error" }),headers: constructHeaders(req, config)});
+    if (checkRequiredHeaders(config, req.headers) === false) {
+      return req.respond(
+        {
+          body: JSON.stringify({ ERROR: "error" }),
+          headers: constructHeaders(req, config),
+        },
+      );
+    }
 
     let decoded = await decodeBody(config, req.body);
     httpServer.forward(config, constructHeaders(req, config), decoded)
       .then((relayValue) => {
         print(
           `[+] Relay server responded with the below.. forwarding`,
-          Verbosity.HIGH
+          Verbosity.HIGH,
         );
         print(relayValue, Verbosity.HIGH);
         performance.mark(`end_http_${req.url}`);
@@ -113,22 +127,20 @@ export default class httpServer {
             performance.measure(
               req.url,
               `start_http_${req.url}`,
-              `end_http_${req.url}`
+              `end_http_${req.url}`,
             ).duration
           } ms`,
-          Verbosity.MEDIUM
+          Verbosity.MEDIUM,
         );
         // console.log(req.headers);
         if (verbosity() >= Verbosity.MEDIUM) {
           console.log(
-            `Incoming payload size: ${
-              ObjectSize(req.body) + ObjectSize(req.headers)
-            } bytes`
+            `Incoming payload size: ${ObjectSize(req.body) +
+              ObjectSize(req.headers)} bytes`,
           );
           console.log(
-            `Outgoing payload size: ${
-              ObjectSize(relayValue.data) + ObjectSize(relayValue.headers)
-            } bytes`
+            `Outgoing payload size: ${ObjectSize(relayValue.data) +
+              ObjectSize(relayValue.headers)} bytes`,
           );
         }
 
