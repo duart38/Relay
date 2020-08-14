@@ -3,7 +3,7 @@ import {
   ServerRequest,
   listenAndServeTLS,
 } from "https://deno.land/std/http/server.ts";
-import { constructHeaders, defaultHeaders, headersToObject } from "../actions/respond.ts";
+import { constructHeaders, defaultHeaders, headersToObject, respondError } from "../actions/respond.ts";
 import { loadConfiguration } from "../actions/loadConfiguration.ts";
 import { Connection } from "../enums/connectionTypes.ts";
 import { HTTPModelMethod } from "../interfaces/model.ts";
@@ -15,6 +15,7 @@ import { Verbosity } from "../enums/verbosity.ts";
 import { verbosity, portnum, TLS } from "../CLA.ts";
 import { decodeBody } from "../actions/decoding.ts";
 import { IAxiodResponse } from "https://deno.land/x/axiod@0.20.0-0/interfaces.ts";
+import { checkRequiredHeaders } from "../actions/filtering.ts";
 
 export default class httpServer {
   constructor() {
@@ -82,19 +83,21 @@ export default class httpServer {
       await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
     );
 
-    if (!config){
+    if (!config){ // config does not exists
       return req.respond({
         body: "404",
         headers: defaultHeaders(req),
       });
     }
 
-    if (req.method !== config.type){
+    if (req.method !== config.type){ // method in config does not match the sent request
       return req.respond({
         body: JSON.stringify({ ERROR: "error" }),
         headers: constructHeaders(req, config),
       });
     }
+
+    if(checkRequiredHeaders(config, req.headers) === false) return req.respond({body: JSON.stringify({ ERROR: "error" }),headers: constructHeaders(req, config)});
 
     let decoded = await decodeBody(config, req.body);
     httpServer.forward(config, constructHeaders(req, config), decoded)

@@ -1,5 +1,5 @@
 import { HTTPModelMethod } from '../interfaces/model.ts';
-
+import { ServerRequest } from "https://deno.land/std/http/server.ts";
 export function constructHeaders(req: any, HTTPModelMethod: HTTPModelMethod): Headers {
   let headers = <Headers>req.headers;
   headers.delete('Content-Length');
@@ -25,4 +25,8 @@ export function headersToObject(headers: Headers): object{
     arr[key] = val;
   });
   return arr;
+}
+
+export function respondError(req: ServerRequest){ 
+  req.respond({body: JSON.stringify({ ERROR: "error" })})
 }
