@@ -21,7 +21,7 @@ import { verbosity, portnum, TLS } from "../CLA.ts";
 import { decodeBody } from "../actions/decoding.ts";
 import { IAxiodResponse } from "https://deno.land/x/axiod@0.20.0-0/interfaces.ts";
 import { checkRequiredHeaders } from "../actions/filtering.ts";
-
+import { Status } from "https://deno.land/std/http/http_status.ts";
 export default class httpServer {
   constructor() {
     this.init();
@@ -90,28 +90,9 @@ export default class httpServer {
       await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
     );
 
-    if (!config) { // config does not exists
-      return req.respond({
-        body: "404",
-        headers: defaultHeaders(req),
-      });
-    }
-
-    if (req.method !== config.type) { // method in config does not match the sent request
-      return req.respond({
-        body: JSON.stringify({ ERROR: "error" }),
-        headers: constructHeaders(req, config),
-      });
-    }
-
-    if (checkRequiredHeaders(config, req.headers) === false) {
-      return req.respond(
-        {
-          body: JSON.stringify({ ERROR: "error" }),
-          headers: constructHeaders(req, config),
-        },
-      );
-    }
+    if (!config) return respondError(req, Status.NotFound) // config does not exists
+    if (req.method !== config.type) return respondError(req, Status.MethodNotAllowed)  // method in config does not match the sent request
+    if (checkRequiredHeaders(config, req.headers) === false) return respondError(req, Status.PreconditionFailed)
 
     let decoded = await decodeBody(config, req.body);
     httpServer.forward(config, constructHeaders(req, config), decoded)
@@ -152,6 +133,7 @@ export default class httpServer {
       .catch((err) => {
         performance.mark(req.url);
         print(err, Verbosity.HIGH);
+        return respondError(req, Status.InternalServerError)
       });
   }
 }
