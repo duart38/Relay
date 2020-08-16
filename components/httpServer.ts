@@ -77,63 +77,70 @@ export default class httpServer {
   }
 
   private async handleRequest(req: ServerRequest) {
-    performance.mark(`start_http_${req.url}`);
-    print(`[+] ${req.method} - ${req.url}`, Verbosity.LOW);
-    if (req.method === "OPTIONS") {
-      req.respond({ headers: defaultHeaders(req) });
-    }
-    const urlMethod = req.url
-      .split("/")[req.url.split("/").length - 1].split("?")[0]; // last piece of url (test/some/stuff) -> (stuff)
-    const urlModel = req.url.split("/")[req.url.split("/").length - 2] + ".ts";
 
-    const config = <HTTPModelMethod> (
-      await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
-    );
-
-    if (!config) return respondError(req, Status.NotFound) // config does not exists
-    if (req.method !== config.type) return respondError(req, Status.MethodNotAllowed)  // method in config does not match the sent request
-    if (checkRequiredHeaders(config, req.headers) === false) return respondError(req, Status.PreconditionFailed)
-
-    let decoded = await decodeBody(config, req.body);
-    httpServer.forward(config, constructHeaders(req, config), decoded)
-      .then((relayValue) => {
-        print(
-          `[+] Relay server responded with the below.. forwarding`,
-          Verbosity.HIGH,
-        );
-        print(relayValue, Verbosity.HIGH);
-        performance.mark(`end_http_${req.url}`);
-        print(
-          `| Duration: ${
-            performance.measure(
-              req.url,
-              `start_http_${req.url}`,
-              `end_http_${req.url}`,
-            ).duration
-          } ms`,
-          Verbosity.MEDIUM,
-        );
-        // console.log(req.headers);
-        if (verbosity() >= Verbosity.MEDIUM) {
-          console.log(
-            `Incoming payload size: ${ObjectSize(req.body) +
-              ObjectSize(req.headers)} bytes`,
+    try{
+      performance.mark(`start_http_${req.url}`);
+      print(`[+] ${req.method} - ${req.url}`, Verbosity.LOW);
+      if (req.method === "OPTIONS") {
+        req.respond({ headers: defaultHeaders(req) });
+      }
+      const urlMethod = req.url
+        .split("/")[req.url.split("/").length - 1].split("?")[0]; // last piece of url (test/some/stuff) -> (stuff)
+      const urlModel = req.url.split("/")[req.url.split("/").length - 2] + ".ts";
+  
+      const config = <HTTPModelMethod> (
+        await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
+      );
+  
+      if (!config) return respondError(req, Status.NotFound) // config does not exists
+      if (req.method !== config.type) return respondError(req, Status.MethodNotAllowed)  // method in config does not match the sent request
+      if (checkRequiredHeaders(config, req.headers) === false) return respondError(req, Status.PreconditionFailed)
+  
+      let decoded = await decodeBody(config, req.body);
+  
+  
+      httpServer.forward(config, constructHeaders(req, config), decoded)
+        .then((relayValue) => {
+          print(
+            `[+] Relay server responded with the below.. forwarding`,
+            Verbosity.HIGH,
           );
-          console.log(
-            `Outgoing payload size: ${ObjectSize(relayValue.data) +
-              ObjectSize(relayValue.headers)} bytes`,
+          print(relayValue, Verbosity.HIGH);
+          performance.mark(`end_http_${req.url}`);
+          print(
+            `| Duration: ${
+              performance.measure(
+                req.url,
+                `start_http_${req.url}`,
+                `end_http_${req.url}`,
+              ).duration
+            } ms`,
+            Verbosity.MEDIUM,
           );
-        }
-
-        req.respond({
-          body: JSON.stringify(relayValue.data) || undefined,
-          headers: constructHeaders(req, config),
+          // console.log(req.headers);
+          if (verbosity() >= Verbosity.MEDIUM) {
+            console.log(
+              `Incoming payload size: ${ObjectSize(req.body) +
+                ObjectSize(req.headers)} bytes`,
+            );
+            console.log(
+              `Outgoing payload size: ${ObjectSize(relayValue.data) +
+                ObjectSize(relayValue.headers)} bytes`,
+            );
+          }
+  
+          req.respond({
+            body: JSON.stringify(relayValue.data) || undefined,
+            headers: constructHeaders(req, config),
+          });
+        })
+        .catch((err) => {
+          performance.mark(req.url);
+          print(err, Verbosity.HIGH);
+          return respondError(req, Status.InternalServerError)
         });
-      })
-      .catch((err) => {
-        performance.mark(req.url);
-        print(err, Verbosity.HIGH);
-        return respondError(req, Status.InternalServerError)
-      });
+    }catch(e){
+      print(e, Verbosity.HIGH);
+    }
   }
 }
