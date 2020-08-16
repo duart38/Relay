@@ -141,6 +141,7 @@ export default class httpServer {
         });
     }catch(e){
       print(e, Verbosity.HIGH);
+      respondError(req, Status.InternalServerError)
     }
   }
 }
