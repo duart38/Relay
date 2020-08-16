@@ -20,7 +20,16 @@ export interface HTTPModelMethod {
   };
   type: HTTP;
   decode: boolean;
-  requiredHeaders?: Array<string>
+  /**
+   * Used to specifiy what headers are required to continue with the request.. the middleware will discard the request in case a header is missing.
+   * An error is returned when there is a missing header
+   */
+  requiredHeaders?: Array<string>;
+  /**
+   * Can only be used in combination with requiredHeaders. 
+   * If requiredHeaders is not available this setting will do nothing
+   */
+  discardUnknownHeaders?: boolean
 }
 
 /**
