@@ -23,7 +23,7 @@ export function checkRequiredHeaders(config: HTTPModelMethod, headers: Headers):
  * @param headers 
  */
 export function discardUnknownHeaders(config: HTTPModelMethod, headers: Headers): Headers{
-    if(config.requiredHeaders){
+    if(config.requiredHeaders && config.discardUnknownHeaders){
         headers.forEach((val, key)=>{
             try{
                 if(!config.requiredHeaders?.includes(key)){
