@@ -13,11 +13,7 @@ export interface Model {
  */
 export interface HTTPModelMethod {
   route: string;
-  cors: {
-    // we want to append these when we relay the signal back to the caller...
-    'Access-Control-Allow-Origin': string;
-    'Access-Control-Allow-Headers': string;
-  };
+  headers: HeaderEntries
   type: HTTP;
   /**
    * Indicates wether we want to decode the body (from int8arr) before we forward
@@ -49,4 +45,9 @@ export interface SOCKETModelMethod {
  */
 interface HTTPModelObject {
   [key: string]: HTTPModelMethod;
+}
+
+
+interface HeaderEntries {
+  [key: string]: string;
 }

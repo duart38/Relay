@@ -4,7 +4,7 @@ import { HTTPModelMethod } from '../interfaces/model.ts';
  * Get the query parameters attached to a url in a json object
  * @param url 
  */
-export function getUrlParams(url: string): object {
+export function getUrlQueryStrings(url: string): object {
   var vars: any = {};
   var hashes = url.split('?')[1];
   if (!hashes) return {};

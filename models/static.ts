@@ -1,29 +1,19 @@
 import { Model } from '../interfaces/model.ts';
 import { HTTP } from '../enums/httpTypes.ts';
 
-export const sandbox = async (): Promise<Model> => {
+export const statics = async (headers: Headers, urlQuerry: object, urlParameters: Array<string>): Promise<Model> => {
+    console.log(urlParameters)
   return {
     HTTP: {
-      about: {
-        route: `http://localhost:3001/ss`,
+      js: {
+        route: `http://localhost:3001/static/js/${urlParameters[0]}`,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
         },
         type: HTTP.GET,
         decode: false
-      },
-      old: {
-        route: `http://localhost:8000/about`,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': '*',
-        },
-        type: HTTP.GET,
-        requiredHeaders: ["lorem"],
-        discardUnknownHeaders: false,
-        decode: false
-      },
+      }
     },
     SOCKET: {
       // socket messages available for the sub route 'Test'  e.g: socket.send('sync_cart')

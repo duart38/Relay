@@ -6,22 +6,18 @@ import {
 import {
   constructHeaders,
   defaultHeaders,
-  headersToObject,
   respondError,
 } from "../actions/respond.ts";
 import { loadConfiguration } from "../actions/loadConfiguration.ts";
 import { Connection } from "../enums/connectionTypes.ts";
 import { HTTPModelMethod } from "../interfaces/model.ts";
-
-import axiod from "https://deno.land/x/axiod@0.20.0-0/mod.ts";
-import { HTTP } from "../enums/httpTypes.ts";
 import { print, ObjectSize } from "../actions/logging.ts";
 import { Verbosity } from "../enums/verbosity.ts";
 import { verbosity, portnum, TLS } from "../CLA.ts";
 import { decodeBody } from "../actions/decoding.ts";
-import { IAxiodResponse } from "https://deno.land/x/axiod@0.20.0-0/interfaces.ts";
 import { checkRequiredHeaders } from "../actions/filtering.ts";
 import { Status } from "https://deno.land/std/http/http_status.ts";
+
 export default class httpServer {
   constructor() {
     this.init();
@@ -50,7 +46,7 @@ export default class httpServer {
     configuration: HTTPModelMethod,
     headers: Headers,
     body: Uint8Array | string,
-  ): Promise<IAxiodResponse> {
+  ): Promise<Response> {
     print(`[->] Forwarding to (${configuration.route})`, Verbosity.MEDIUM);
     print(`| With configuration:`, Verbosity.HIGH);
     print(configuration, Verbosity.HIGH);
@@ -59,21 +55,10 @@ export default class httpServer {
     print(`| Headers:`, Verbosity.HIGH);
     print(headers || " - none", Verbosity.HIGH);
 
-    switch (configuration.type) {
-      case HTTP.GET:
-        return await axiod.get(
-          configuration.route,
-          { headers: headersToObject(headers) },
-        );
-      case HTTP.POST:
-        return await axiod.post(
-          configuration.route,
-          typeof body === "string" ? JSON.parse(body) : body,
-          { headers: headersToObject(headers) },
-        );
-      default:
-        return await axiod.get(configuration.route);
-    }
+        return await fetch(configuration.route, {
+          method: configuration.type,
+          headers: headers//headersToObject(headers),
+      });
   }
 
   /**
@@ -88,12 +73,15 @@ export default class httpServer {
       if (req.method === "OPTIONS") {
         req.respond({ headers: defaultHeaders(req) });
       }
-      const urlMethod = req.url
-        .split("/")[req.url.split("/").length - 1].split("?")[0]; // last piece of url (test/some/stuff) -> (stuff)
-      const urlModel = req.url.split("/")[req.url.split("/").length - 2] + ".ts";
+      /* REQ FORMAT:
+        http:www.test.com/<model>/<method_in_model>/......params......
+      */
+      const urlModel = req.url.split("/")[1] + ".ts"; // file name
+      const urlMethod = req.url.split("/")[2].split("?")[0]; // method in the file name
+      const urlParameters = req.url.split("/").slice(3); // anything that comes after our pre-defined base routing system.
   
       const config = <HTTPModelMethod> (
-        await loadConfiguration(urlModel, urlMethod, req, Connection.HTTP)
+        await loadConfiguration(urlModel, urlMethod, urlParameters, req, Connection.HTTP)
       );
   
       if (!config) return respondError(req, Status.NotFound) // config does not exists
@@ -104,7 +92,7 @@ export default class httpServer {
   
   
       httpServer.forward(config, constructHeaders(req, config), decoded)
-        .then((relayValue) => {
+        .then(async (relayValue) => {
           print(
             `[+] Relay server responded with the below.. forwarding`,
             Verbosity.HIGH,
@@ -128,13 +116,13 @@ export default class httpServer {
                 ObjectSize(req.headers)} bytes`,
             );
             console.log(
-              `Outgoing payload size: ${ObjectSize(relayValue.data) +
+              `Outgoing payload size: ${ObjectSize(relayValue.body) +
                 ObjectSize(relayValue.headers)} bytes`,
             );
           }
   
           req.respond({
-            body: JSON.stringify(relayValue.data) || undefined,
+            body: config.decode ? JSON.stringify(relayValue.json()) : await relayValue.text() || undefined,
             headers: constructHeaders(req, config),
           });
         })

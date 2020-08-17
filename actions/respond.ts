@@ -10,10 +10,10 @@ import { Status } from "https://deno.land/std/http/http_status.ts";import { disc
 export function constructHeaders(req: any, HTTPModelMethod: HTTPModelMethod): Headers {
   let headers = <Headers>req.headers;
   headers.delete('Content-Length');
-  headers.delete("content-type");
+  // headers.delete("content-type");
   discardUnknownHeaders(HTTPModelMethod, headers);
 
-  Object.entries(HTTPModelMethod.cors).map((val) => {
+  Object.entries(HTTPModelMethod.headers).map((val) => {
     headers.append(val[0], val[1]);
   });
   return headers;
