@@ -76,9 +76,9 @@ export default class httpServer {
       /* REQ FORMAT:
         http:www.test.com/<model>/<method_in_model>/......params......
       */
-      const urlModel = req.url.split("/")[1] + ".ts"; // file name
-      const urlMethod = req.url.split("/")[2].split("?")[0]; // method in the file name
-      const urlParameters = req.url.split("/").slice(3); // anything that comes after our pre-defined base routing system.
+      const urlModel = req.url.split("/")[1] + ".ts"; // file name (eg. about.ts)
+      const urlMethod = req.url.split("/")[2].split("?")[0]; // method in the file name (getconfig: {})
+      const urlParameters = req.url.split("/").slice(3); // anything that comes after our pre-defined base routing system. (eg /12/minified/<others>)
   
       const config = <HTTPModelMethod> (
         await loadConfiguration(urlModel, urlMethod, urlParameters, req, Connection.HTTP)
