@@ -57,7 +57,8 @@ export default class httpServer {
 
         return await fetch(configuration.route, {
           method: configuration.type,
-          headers: headers//headersToObject(headers),
+          headers: headers, //headersToObject(headers),
+          body
       });
   }
 
@@ -90,7 +91,6 @@ export default class httpServer {
   
       let decoded = await decodeBody(config, req.body);
   
-  
       httpServer.forward(config, constructHeaders(req, config), decoded)
         .then(async (relayValue) => {
           print(
@@ -121,8 +121,9 @@ export default class httpServer {
             );
           }
   
+          const body = config.decode ? JSON.stringify(await relayValue.json()) : await relayValue.text();
           req.respond({
-            body: config.decode ? JSON.stringify(relayValue.json()) : await relayValue.text() || undefined,
+            body:  body || undefined,
             headers: constructHeaders(req, config),
           });
         })
