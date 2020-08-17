@@ -17,12 +17,10 @@ export const sandbox = async (): Promise<Model> => {
         route: `http://localhost:8000/about`,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Allow-Headers': '*'
         },
         type: HTTP.GET,
-        requiredHeaders: ["lorem"],
-        discardUnknownHeaders: false,
-        decode: false
+        decode: true
       },
     },
     SOCKET: {
