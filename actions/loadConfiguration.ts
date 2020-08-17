@@ -6,6 +6,14 @@ import { HTTPModelMethod, SOCKETModelMethod } from '../interfaces/model.ts';
 import { print } from './logging.ts';
 import { Verbosity } from '../enums/verbosity.ts';
 
+/**
+ * Loads the configuration method of a particular model.
+ * NOTE: This method does not load the whole models file but only a section of it
+ * @param model 
+ * @param method 
+ * @param req 
+ * @param connectionType 
+ */
 export async function loadConfiguration(
   model: string,
   method: string,

@@ -76,6 +76,10 @@ export default class httpServer {
     }
   }
 
+  /**
+   * The first entry point for an incoming request.
+   * @param req 
+   */
   private async handleRequest(req: ServerRequest) {
 
     try{

@@ -33,6 +33,10 @@ export class Watcher {
     }
   }
 
+  /**
+   * Get the observable value attached to this instance.
+   * @see https://github.com/duart38/Observe
+   */
   public getObservable(): Observe<string> {
     return this.hash;
   }

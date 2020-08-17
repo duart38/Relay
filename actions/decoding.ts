@@ -1,5 +1,9 @@
 import { HTTPModelMethod } from '../interfaces/model.ts';
 
+/**
+ * Get the query parameters attached to a url in a json object
+ * @param url 
+ */
 export function getUrlParams(url: string): object {
   var vars: any = {};
   var hashes = url.split('?')[1];
@@ -13,6 +17,11 @@ export function getUrlParams(url: string): object {
   return vars || {};
 }
 
+/**
+ * Helper method that reads the config and determines wether it should convert the body or pass it on as is (unit8array)
+ * @param config 
+ * @param body 
+ */
 export async function decodeBody(
   config: HTTPModelMethod,
   body: Deno.Reader
