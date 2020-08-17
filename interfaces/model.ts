@@ -16,9 +16,13 @@ export interface HTTPModelMethod {
   headers: HeaderEntries
   type: HTTP;
   /**
-   * Indicates wether we want to decode the body (from int8arr) before we forward
+   * Indicates wether we want to decode the body (from int8arr) before we forward to the relay server
    */
   decode?: boolean;
+  /**
+   * Indicates wether we want to decode the body to JSON before we send it back to the CLIENT
+   */
+  decodeResponse?: boolean
   /**
    * Used to specifiy what headers are required to continue with the request.. the middleware will discard the request in case a header is missing.
    * An error is returned when there is a missing header

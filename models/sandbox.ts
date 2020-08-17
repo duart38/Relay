@@ -19,8 +19,9 @@ export const sandbox = async (): Promise<Model> => {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*'
         },
-        type: HTTP.GET,
-        decode: true
+        type: HTTP.POST,
+        decode: true,
+        decodeResponse: false
       },
     },
     SOCKET: {
