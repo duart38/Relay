@@ -1,4 +1,4 @@
-# MedIT_middleware
+# Relay
 Provide a compatibility layer for IIS server. Also serves as a middleware.
 
 # Running from the CLI
