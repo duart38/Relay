@@ -1,6 +1,8 @@
 import { HTTPModelMethod } from '../interfaces/model.ts';
 import { ServerRequest } from "https://deno.land/std/http/server.ts";
 import { Status } from "https://deno.land/std/http/http_status.ts";import { discardUnknownHeaders } from './filtering.ts';
+import { print } from './logging.ts';
+import { Verbosity } from '../enums/verbosity.ts';
 
 /**
  * Construct headers based on configuration
@@ -10,10 +12,13 @@ import { Status } from "https://deno.land/std/http/http_status.ts";import { disc
 export function constructHeaders(req: any, HTTPModelMethod: HTTPModelMethod): Headers {
   let headers = <Headers>req.headers;
   headers.delete('Content-Length');
-  // headers.delete("content-type");
   discardUnknownHeaders(HTTPModelMethod, headers);
 
   Object.entries(HTTPModelMethod.headers).map((val) => {
+    if(headers.has(val[0])) {
+      print(`The header ${val[0]} was already found on the existing headers. replacing`, Verbosity.MEDIUM);
+      headers.delete(val[0])
+    }
     headers.append(val[0], val[1]);
   });
   return headers;
