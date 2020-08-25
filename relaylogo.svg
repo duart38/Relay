@@ -1,0 +1,27 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 71.1 65.46">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #ed1c24;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+
+      .cls-3 {
+        font-size: 16.68px;
+        font-family: AkagiPro-Fat, Akagi Pro;
+        font-weight: 900;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M49.52,24.12V17A1.13,1.13,0,0,0,48.4,15.9,1.15,1.15,0,0,0,47.27,17v7.1a1.13,1.13,0,0,0,2.25,0Z" transform="translate(-44.37 -15.9)"/>
+  <line class="cls-2" x1="45.63" y1="14.46" x2="4.03" y2="14.46"/>
+  <line class="cls-2" x1="21.19" y1="26.23" x2="67.97" y2="26.23"/>
+  <line class="cls-2" x1="4.03" y1="37.22" x2="47.76" y2="37.22"/>
+  <text class="cls-3" transform="translate(2.84 58.89) scale(0.95 1)">R E L A Y</text>
+</svg>
