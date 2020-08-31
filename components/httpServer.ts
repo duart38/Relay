@@ -125,7 +125,7 @@ export default class httpServer {
            * Decoded body or text..
            */
           const body = config.decodeResponse ? JSON.stringify(await relayValue.json()) : await relayValue.text();
-          req.respond({
+          await req.respond({
             body:  body || undefined,
             headers: constructHeaders(req, config),
           });
