@@ -5,7 +5,7 @@ export const sandbox = async (): Promise<Model> => {
   return {
     HTTP: {
       about: {
-        route: `http://localhost:3001/ss`,
+        route: `https://localhost:6969/about`,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',

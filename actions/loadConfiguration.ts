@@ -24,7 +24,9 @@ export async function loadConfiguration(
   try {
     let fileHash = modelWatcher.getObservable().getValue();
     performance.mark('start_' + fileHash);
-    let m = await import(`../${modelsFolder()}/${model}?${fileHash}.ts`);
+    const importPath = `../${modelsFolder()}/${sanitizeEvent(model)}.ts?${fileHash}`;
+    print(`[>] importPath: ${importPath}`, Verbosity.HIGH);
+    let m = await import(importPath);
     performance.mark('end_' + fileHash);
     let time = performance.measure('config_load', `start_${fileHash}`, `end_${fileHash}`).duration;
     print(`[!] configuration loaded in: ${time} ms`, Verbosity.HIGH);
@@ -37,4 +39,7 @@ export async function loadConfiguration(
   } catch (error) {
     return undefined;
   }
+}
+function sanitizeEvent(eventString: string): string {
+  return eventString.replaceAll(/(\W|\r|\t|\n|\s)+/g, "");
 }
